@@ -1,15 +1,8 @@
-class GetAPIException(Exception):
-    """Исключение для проблем доступа к API."""
-
+def HttpResponseNotOk(message):
+    """ошибка http respomse."""
     pass
 
 
-class UnavailableAPIException(GetAPIException):
-    """Исключение для неправильного кода доступа к API."""
-
+def WrongKeyHw():
+    """неверный key."""
     pass
-
-
-def err_msg(error):
-    """Генерация сообщения об ошибке."""
-    return f'Сбой в работе программы: {error}'
