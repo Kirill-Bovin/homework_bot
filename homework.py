@@ -29,12 +29,12 @@ old_error_message = ''
 
 
 def check_tokens():
-    """Функция проверяющая наличие токеннов."""
+    """Проверка токеннов."""
     return all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID])
 
 
 def send_message(bot, message):
-    """Функция отправки сообщений от бота."""
+    """Отправка сообщений."""
     try:
         bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
         logging.debug(f'send_message: Бот отправил сообщение: {message}')
@@ -44,7 +44,7 @@ def send_message(bot, message):
 
 
 def get_api_answer(timestamp):
-    """Функция получения ответа от API."""
+    """Получение ответа от API."""
     payload = {'from_date': timestamp}
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=payload)
@@ -52,8 +52,8 @@ def get_api_answer(timestamp):
             logging.error(f'{ENDPOINT}, не передает данные')
             raise HttpResponseNotOk(f'{ENDPOINT} не передает данные')
         return response.json()
-    except requests.RequestException as i:
-        logging.error(f'{ENDPOINT} не передает данные: {i}')
+    except requests.RequestException as error:
+        logging.error(f'{ENDPOINT} не передает данные: {error}')
         raise Exception(f'{ENDPOINT}, не передает данные')
 
 

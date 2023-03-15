@@ -1,8 +1,8 @@
 def HttpResponseNotOk(message):
-    """ошибка http respomse."""
+    """Ошибка http."""
     pass
 
 
 def WrongKeyHw():
-    """неверный key."""
+    """Неверный ключ."""
     pass
