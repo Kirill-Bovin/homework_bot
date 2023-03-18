@@ -7,7 +7,7 @@ from http import HTTPStatus
 import requests
 import telegram
 from dotenv import load_dotenv
-from exceptions import HttpResponseNotOk, WrongKeyHw
+from exceptions import HTTPError, HttpResponseNotOkError, WrongKeyHw
 
 load_dotenv()
 
@@ -25,12 +25,11 @@ HOMEWORK_VERDICTS = {
     'reviewing': 'Работа взята на проверку ревьюером.',
     'rejected': 'Работа проверена: у ревьюера есть замечания.'
 }
-old_error_message = ''
 
 
 def check_tokens():
     """Проверка токеннов."""
-    return all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID])
+    return all((PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID))
 
 
 def send_message(bot, message):
@@ -43,18 +42,18 @@ def send_message(bot, message):
                       f'{message} не отправленно')
 
 
-def get_api_answer(timestamp):
+def get_api_answer(timestamp: int = int(time.time())):
     """Получение ответа от API."""
     payload = {'from_date': timestamp}
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=payload)
         if response.status_code != HTTPStatus.OK:
             logging.error(f'{ENDPOINT}, не передает данные')
-            raise HttpResponseNotOk(f'{ENDPOINT} не передает данные')
+            raise HttpResponseNotOkError(f'{ENDPOINT} не передает данные')
         return response.json()
-    except requests.RequestException as error:
+    except requests.exceptions.HTTPError as error:
         logging.error(f'{ENDPOINT} не передает данные: {error}')
-        raise Exception(f'{ENDPOINT}, не передает данные')
+        raise HTTPError(f'{ENDPOINT}, не передает данные')
 
 
 def check_response(response):
@@ -88,15 +87,15 @@ def parse_status(homework):
 
 def main():
     """Основная логика работы бота."""
-    global old_error_message
+    old_error_message = ''
     if not check_tokens():
         message = 'Отсутсвуют обязательные переменные окружения'
         logging.critical(message)
         sys.exit(message)
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    timestamp = int(time.time())
     cur_status = {"hw_name": "", "message": ""}
     prev_status = {"hw_name": "", "message": ""}
+    timestamp = int(time.time())
     while True:
         try:
             response = get_api_answer(timestamp)
@@ -111,7 +110,7 @@ def main():
                 prev_status = cur_status.copy()
             else:
                 logging.debug('нет новых статусов')
-
+                timestamp = response.get('current_date')
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message)

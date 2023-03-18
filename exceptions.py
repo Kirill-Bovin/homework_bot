@@ -1,8 +1,14 @@
-def HttpResponseNotOk(message):
-    """Ошибка http."""
+class KirillTeleBotError(Exception):
     pass
 
 
-def WrongKeyHw():
-    """Неверный ключ."""
+class HTTPError(KirillTeleBotError):
+    pass
+
+
+class HttpResponseNotOkError(KirillTeleBotError):
+    pass
+
+
+class WrongKeyHw(KirillTeleBotError):
     pass
