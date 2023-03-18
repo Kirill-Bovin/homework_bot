@@ -7,7 +7,7 @@ from http import HTTPStatus
 import requests
 import telegram
 from dotenv import load_dotenv
-from exceptions import HTTPError, HttpResponseNotOkError, WrongKeyHw
+from exceptions import KirillTeleBotError, HttpResponseNotOkError, WrongKeyHw
 
 load_dotenv()
 
@@ -47,13 +47,13 @@ def get_api_answer(timestamp: int = int(time.time())):
     payload = {'from_date': timestamp}
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=payload)
-        if response.status_code != HTTPStatus.OK:
-            logging.error(f'{ENDPOINT}, не передает данные')
-            raise HttpResponseNotOkError(f'{ENDPOINT} не передает данные')
-        return response.json()
     except requests.RequestException as error:
-        logging.error(f'{ENDPOINT} не передает данные: {error}')
-        raise HTTPError(f'{ENDPOINT}, не передает данные')
+        raise KirillTeleBotError(error)
+    if response.status_code != HTTPStatus.OK:
+        logging.error(f'{ENDPOINT}, не передает данные')
+        raise HttpResponseNotOkError(
+            f'Код ошибки: {response.status_code}')
+    return response.json()
 
 
 def check_response(response):
