@@ -51,7 +51,7 @@ def get_api_answer(timestamp: int = int(time.time())):
             logging.error(f'{ENDPOINT}, не передает данные')
             raise HttpResponseNotOkError(f'{ENDPOINT} не передает данные')
         return response.json()
-    except requests.exceptions.HTTPError as error:
+    except requests.RequestException as error:
         logging.error(f'{ENDPOINT} не передает данные: {error}')
         raise HTTPError(f'{ENDPOINT}, не передает данные')
 
