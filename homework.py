@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 import time
+import copy
 from http import HTTPStatus
 
 import requests
@@ -87,15 +88,15 @@ def parse_status(homework):
 
 def main():
     """Основная логика работы бота."""
-    old_error_message = ''
     if not check_tokens():
-        message = 'Отсутсвуют обязательные переменные окружения'
+        message = 'Отсутствуют обязательные переменные окружения'
         logging.critical(message)
         sys.exit(message)
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     cur_status = {"hw_name": "", "message": ""}
     prev_status = {"hw_name": "", "message": ""}
     timestamp = int(time.time())
+    old_error_message = None
     while True:
         try:
             response = get_api_answer(timestamp)
@@ -107,13 +108,12 @@ def main():
                 cur_status["message"] = "Не принята ревьюером"
             if cur_status != prev_status:
                 send_message(bot, cur_status["message"])
-                prev_status = cur_status.copy()
+                prev_status = copy.deepcopy(cur_status)
             else:
                 logging.debug('нет новых статусов')
                 timestamp = response.get('current_date')
         except Exception as error:
-            message = f'Сбой в работе программы: {error}'
-            logging.error(message)
+            logging.exception('Сбой в работе программы:', error)
             if message != old_error_message:
                 send_message(bot, message)
                 old_error_message = message
